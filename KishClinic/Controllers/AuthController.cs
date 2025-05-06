@@ -17,7 +17,7 @@ namespace KishClinic.Controllers
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        [HttpPost("register")]
+        [HttpPost("register")] 
         public async Task<ActionResult<User>> Register(UserDto request)
         {
             var user=await authService.RegisterAsync(request);

@@ -28,7 +28,7 @@ namespace KishClinic.Services
 
             return CreateToken(user);
         }
-
+         
         public async Task<User?> RegisterAsync(UserDto request)
         {
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
