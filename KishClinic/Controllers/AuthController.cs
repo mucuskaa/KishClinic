@@ -17,10 +17,10 @@ namespace KishClinic.Controllers
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        [HttpPost("register")] 
-        public async Task<ActionResult<User>> Register(UserDto request)
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> Register(RegisterDto request)
         {
-            var user=await authService.RegisterAsync(request);
+            var user = await authService.RegisterAsync(request);
             if (user is null)
                 return BadRequest("Email already exist.");
 
@@ -28,7 +28,7 @@ namespace KishClinic.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserDto request)
+        public async Task<ActionResult<string>> Login(LoginDto request)
         {
             var token = await authService.LoginAsync(request);
             if (token is null)
@@ -42,6 +42,13 @@ namespace KishClinic.Controllers
         public IActionResult AuthenticatedOnlyEndpoint()
         {
             return Ok("You are authenticated!");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin-only")]
+        public IActionResult AdminOnlyEndpoint()
+        {
+            return Ok("You are an admin!");
         }
     }
 }

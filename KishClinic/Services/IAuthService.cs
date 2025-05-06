@@ -5,8 +5,8 @@ namespace KishClinic.Services
 {
     public interface IAuthService
     {
-        Task<User?> RegisterAsync(UserDto request);
-        Task<string?> LoginAsync(UserDto request);
+        Task<User?> RegisterAsync(RegisterDto request);
+        Task<string?> LoginAsync(LoginDto request);
     }
 }
  

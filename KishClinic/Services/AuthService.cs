@@ -12,7 +12,7 @@ namespace KishClinic.Services
 {
     public class AuthService(KishClinicDbContext context, IConfiguration configuration) : IAuthService
     {
-        public async Task<string?> LoginAsync(UserDto request)
+        public async Task<string?> LoginAsync(LoginDto request)
         {
             var user = await context.Users.FirstOrDefaultAsync(u=>u.Email == request.Email);
 
@@ -29,7 +29,7 @@ namespace KishClinic.Services
             return CreateToken(user);
         }
          
-        public async Task<User?> RegisterAsync(UserDto request)
+        public async Task<User?> RegisterAsync(RegisterDto request)
         {
             if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -42,6 +42,13 @@ namespace KishClinic.Services
 
             user.Email = request.Email;
             user.PasswordHash = hashedPassword;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.DateOfBirth = request.DateOfBirth;
+            user.Phone = request.Phone;
+            user.Address = request.Address;
+            user.Notes = request.Notes;
+            user.Role = "User";
 
             context.Users.Add(user);
             await context.SaveChangesAsync();
@@ -53,7 +60,8 @@ namespace KishClinic.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
 
             };
 
