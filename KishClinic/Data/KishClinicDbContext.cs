@@ -7,6 +7,16 @@ namespace KishClinic.Data
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Article> Articles { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
+        public DbSet<SessionType> SessionTypes { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<UserSession>()
+                .HasKey(us => new { us.UserId, us.SessionId });
+        }
     }
 }

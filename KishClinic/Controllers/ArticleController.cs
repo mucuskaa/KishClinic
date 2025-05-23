@@ -2,6 +2,7 @@ using KishClinic.Entities;
 using KishClinic.Models;
 using KishClinic.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace KishClinic.Controllers
 {
@@ -83,7 +84,7 @@ namespace KishClinic.Controllers
                 return NotFound();
             }
 
-            patchDoc.ApplyTo(article, ModelState);
+            patchDoc.ApplyTo(article, (error) => ModelState.AddModelError(error.AffectedObject.ToString(), error.ErrorMessage));
 
             if (!ModelState.IsValid)
             {
@@ -98,6 +99,7 @@ namespace KishClinic.Controllers
 
             return Ok(updatedArticle);
         }
+
 
 
 
