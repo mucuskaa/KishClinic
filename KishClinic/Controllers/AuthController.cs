@@ -48,6 +48,32 @@ namespace KishClinic.Controllers
             return Ok(token);
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<UserProfileDto>> GetCurrentUser([FromServices] IUserService userService)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid user ID in token.");
+
+            var user = await userService.GetByIdAsync(userId);
+            if (user is null)
+                return NotFound("User not found.");
+
+            var profile = new UserProfileDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.Phone,
+                Address = user.Address,
+                Notes = user.Notes,
+                DateOfBirth = user.DateOfBirth
+            };
+
+            return Ok(profile);
+        }
 
         [Authorize]
         [HttpGet]
