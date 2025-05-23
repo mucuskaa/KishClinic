@@ -20,6 +20,11 @@ namespace KishClinic.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(RegisterDto request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = await authService.RegisterAsync(request);
             if (user is null)
                 return BadRequest("Email already exist.");
@@ -27,15 +32,22 @@ namespace KishClinic.Controllers
             return Ok(user);
         }
 
+
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(LoginDto request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var token = await authService.LoginAsync(request);
             if (token is null)
                 return BadRequest("Invalid Email or Password.");
 
             return Ok(token);
         }
+
 
         [Authorize]
         [HttpGet]

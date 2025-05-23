@@ -38,6 +38,9 @@ namespace KishClinic.Controllers
         [HttpPost]
         public async Task<ActionResult<SessionType>> Create([FromBody] SessionTypeDto sessionTypeDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var sessionType = new SessionType
             {
                 Description = sessionTypeDto.Description,

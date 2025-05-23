@@ -38,6 +38,11 @@ namespace KishClinic.Controllers
         [HttpPost]
         public async Task<ActionResult<Article>> Create([FromBody] ArticleDto articleDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var article = new Article
             {
                 Title = articleDto.Title,
@@ -51,9 +56,15 @@ namespace KishClinic.Controllers
         }
 
 
+
         [HttpPut("{id}")]
         public async Task<ActionResult<Article>> Update(int id, [FromBody] ArticleDto articleDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var article = new Article
             {
                 Title = articleDto.Title,
@@ -69,6 +80,7 @@ namespace KishClinic.Controllers
             }
             return Ok(updatedArticle);
         }
+
 
         [HttpPatch("{id}")]
         public async Task<ActionResult<Article>> Update(int id, [FromBody] JsonPatchDocument<Article> patchDoc)
