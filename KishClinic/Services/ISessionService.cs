@@ -8,6 +8,7 @@ namespace KishClinic.Services
         Task<Session?> GetByIdAsync(int id);
         Task<Session> CreateAsync(Session session);
         Task<Session?> UpdateAsync(int id, Session session);
+        Task<Session?> UpdateStatusAsync(int id, string status);
         Task<bool> DeleteAsync(int id);
     }
 }

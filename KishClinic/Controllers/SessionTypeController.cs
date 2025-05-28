@@ -84,7 +84,9 @@ namespace KishClinic.Controllers
                 return NotFound();
             }
 
-            patchDoc.ApplyTo(sessionType, (error) => ModelState.AddModelError(error.AffectedObject.ToString(), error.ErrorMessage));
+            patchDoc.ApplyTo(sessionType, (error) => ModelState.AddModelError(
+                error.AffectedObject?.ToString() ?? "Unknown",
+                error.ErrorMessage));
 
             if (!ModelState.IsValid)
             {

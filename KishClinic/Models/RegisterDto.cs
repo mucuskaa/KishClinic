@@ -17,7 +17,8 @@ namespace KishClinic.Models
         public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date of birth is required.")]
-        public DateOnly DateOfBirth { get; set; }
+        [RegularExpression(@"^\d{4}-\d{2}-\d{2}$", ErrorMessage = "Date must be in yyyy-MM-dd format.")]
+        public string DateOfBirth { get; set; } = string.Empty;
 
         [Phone(ErrorMessage = "Invalid phone number.")]
         public string Phone { get; set; } = string.Empty;

@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 using KishClinic.Entities;
 using KishClinic.Models;
 using KishClinic.Services;
@@ -31,7 +32,6 @@ namespace KishClinic.Controllers
 
             return Ok(user);
         }
-
 
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(LoginDto request)
@@ -69,7 +69,8 @@ namespace KishClinic.Controllers
                 Phone = user.Phone,
                 Address = user.Address,
                 Notes = user.Notes,
-                DateOfBirth = user.DateOfBirth
+                DateOfBirth = user.DateOfBirth,
+                Role = user.Role
             };
 
             return Ok(profile);
@@ -87,6 +88,49 @@ namespace KishClinic.Controllers
         public IActionResult AdminOnlyEndpoint()
         {
             return Ok("You are an admin!");
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<ActionResult<UserProfileDto>> UpdateProfile([FromBody] UserProfileDto request, [FromServices] IUserService userService)
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid user ID in token.");
+
+            if (userId != request.Id)
+                return BadRequest("Cannot update profile for different user.");
+
+            var user = await userService.GetByIdAsync(userId);
+            if (user is null)
+                return NotFound("User not found.");
+
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.DateOfBirth = request.DateOfBirth;
+            user.Phone = request.Phone;
+            user.Address = request.Address;
+            user.Notes = request.Notes;
+
+            var updatedUser = await userService.UpdateAsync(user);
+            if (updatedUser is null)
+                return BadRequest("Failed to update profile.");
+
+            var profile = new UserProfileDto
+            {
+                Id = updatedUser.Id,
+                Email = updatedUser.Email,
+                FirstName = updatedUser.FirstName,
+                LastName = updatedUser.LastName,
+                Phone = updatedUser.Phone,
+                Address = updatedUser.Address,
+                Notes = updatedUser.Notes,
+                DateOfBirth = updatedUser.DateOfBirth,
+                Role = updatedUser.Role
+            };
+
+            return Ok(profile);
         }
     }
 }

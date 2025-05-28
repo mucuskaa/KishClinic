@@ -35,6 +35,14 @@ namespace KishClinic.Controllers
             return Ok(session);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<Session>>> GetByUser(int userId)
+        {
+            var sessions = await _sessionService.GetAllAsync();
+            var userSessions = sessions.Where(s => s.ClientID == userId);
+            return Ok(userSessions);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(SessionDto dto)
         {
@@ -79,6 +87,30 @@ namespace KishClinic.Controllers
             return Ok(updatedSession);
         }
 
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<Session>> UpdateStatus(int id, [FromBody] SessionStatusUpdateDto statusDto)
+        {
+            if (statusDto == null || string.IsNullOrEmpty(statusDto.Status))
+            {
+                return BadRequest("Status is required");
+            }
+
+            var session = await _sessionService.GetByIdAsync(id);
+            if (session == null)
+            {
+                return NotFound();
+            }
+
+            session.Status = statusDto.Status;
+            var updatedSession = await _sessionService.UpdateAsync(id, session);
+            if (updatedSession == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedSession);
+        }
+
         [HttpPatch("{id}")]
         public async Task<ActionResult<Session>> Update(int id, [FromBody] JsonPatchDocument<Session> patchDoc)
         {
@@ -93,7 +125,9 @@ namespace KishClinic.Controllers
                 return NotFound();
             }
 
-            patchDoc.ApplyTo(session, (error) => ModelState.AddModelError(error.AffectedObject.ToString(), error.ErrorMessage));
+            patchDoc.ApplyTo(session, (error) => ModelState.AddModelError(
+                error.AffectedObject?.ToString() ?? "Unknown",
+                error.ErrorMessage));
 
             if (!ModelState.IsValid)
             {

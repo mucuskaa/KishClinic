@@ -7,6 +7,7 @@ using KishClinic.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 
 namespace KishClinic.Services
 {
@@ -36,6 +37,11 @@ namespace KishClinic.Services
                 return null;
             }
 
+            if (!DateOnly.TryParseExact(request.DateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateOfBirth))
+            {
+                throw new ArgumentException("Invalid date format. Use yyyy-MM-dd format.");
+            }
+
             var user = new User();
             var hashedPassword = new PasswordHasher<User>()
                 .HashPassword(user, request.Password);
@@ -44,7 +50,7 @@ namespace KishClinic.Services
             user.PasswordHash = hashedPassword;
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
-            user.DateOfBirth = request.DateOfBirth;
+            user.DateOfBirth = dateOfBirth;
             user.Phone = request.Phone;
             user.Address = request.Address;
             user.Notes = request.Notes;

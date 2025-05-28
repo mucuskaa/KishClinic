@@ -1,6 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using KishClinic.Models;
 using KishClinic.Data;
 using KishClinic.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace KishClinic.Services
 {
@@ -26,27 +31,25 @@ namespace KishClinic.Services
                 .Include(s => s.SessionType)
                 .FirstOrDefaultAsync(s => s.ID == id);
         }
+
         public async Task<Session> CreateAsync(Session session)
         {
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
-
-            var userSession = new UserSession
-            {
-                UserId = session.ClientID,
-                SessionId = session.ID
-            };
-            _context.UserSessions.Add(userSession);
-            await _context.SaveChangesAsync();
-
-            return await _context.Sessions
+            
+            var createdSession = await _context.Sessions
                 .Include(s => s.SessionType)
                 .FirstOrDefaultAsync(s => s.ID == session.ID);
+                
+            return createdSession ?? throw new InvalidOperationException("Failed to create session");
         }
 
         public async Task<Session?> UpdateAsync(int id, Session session)
         {
-            var existingSession = await _context.Sessions.FindAsync(id);
+            var existingSession = await _context.Sessions
+                .Include(s => s.SessionType)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
             if (existingSession == null)
             {
                 return null;
@@ -60,6 +63,22 @@ namespace KishClinic.Services
             existingSession.Notes = session.Notes;
             existingSession.SessionTypeID = session.SessionTypeID;
 
+            await _context.SaveChangesAsync();
+            return existingSession;
+        }
+
+        public async Task<Session?> UpdateStatusAsync(int id, string status)
+        {
+            var existingSession = await _context.Sessions
+                .Include(s => s.SessionType)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (existingSession == null)
+            {
+                return null;
+            }
+
+            existingSession.Status = status;
             await _context.SaveChangesAsync();
             return existingSession;
         }

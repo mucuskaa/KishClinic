@@ -17,6 +17,10 @@ namespace KishClinic.Data
 
             modelBuilder.Entity<UserSession>()
                 .HasKey(us => new { us.UserId, us.SessionId });
+
+            modelBuilder.Entity<SessionType>()
+                .Property(st => st.DefaultFee)
+                .HasPrecision(10, 2);
         }
     }
 }
